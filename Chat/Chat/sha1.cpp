@@ -1,5 +1,6 @@
+#include <iomanip>
+#include <string.h>
 #include "sha1.h"
-#include <string>
 
 uint cycle_shift_left(uint val, int bit_count) {
     return (val << bit_count | val >> (32 - bit_count));
@@ -13,17 +14,17 @@ uint bring_to_human_view(uint val) {
 }
 
 uint* sha1(char* message, uint msize_bytes) {
-    //инициализация
+    //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     uint A = H[0];
     uint B = H[1];
     uint C = H[2];
     uint D = H[3];
     uint E = H[4];
 
-    // подсчет целого числа блоков
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     uint totalBlockCount = msize_bytes / one_block_size_bytes;
 
-    // подсчет, сколько байт нужно, чтобы дополнить последний блок
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
     uint needAdditionalBytes =
         one_block_size_bytes - (msize_bytes - totalBlockCount * one_block_size_bytes);
 
@@ -35,34 +36,34 @@ uint* sha1(char* message, uint msize_bytes) {
         totalBlockCount += 1;
     }
 
-    // размер дополненного по всем правилам сообщения
+    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     uint extendedMessageSize = msize_bytes + needAdditionalBytes;
 
-    // выделяем новый буфер и копируем в него исходный
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     unsigned char* newMessage = new unsigned char[extendedMessageSize];
     memcpy(newMessage, message, msize_bytes);
 
-    // первый бит ставим '1', остальные обнуляем
+    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ '1', пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     newMessage[msize_bytes] = 0x80;
     memset(newMessage + msize_bytes + 1, 0, needAdditionalBytes - 1);
 
-    // задаем длину исходного сообщения в битах
+    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
     uint* ptr_to_size = (uint*)(newMessage + extendedMessageSize - 4);
     *ptr_to_size = bring_to_human_view(msize_bytes * 8);
 
     ExpendBlock exp_block;
-    //раунды поехали
+    //пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     for (uint i = 0; i < totalBlockCount; i++) {
 
-        // берем текущий блок и дополняем его
+        // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
         unsigned char* cur_p = newMessage + one_block_size_bytes * i;
         Block block = (Block)cur_p;
 
-        // первые 16 4байтовых чисел
+        // пїЅпїЅпїЅпїЅпїЅпїЅ 16 4пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         for (int j = 0; j < one_block_size_uints; j++) {
             exp_block[j] = bring_to_human_view(block[j]);
         }
-        // следующие 64...
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 64...
         for (int j = one_block_size_uints; j < block_expend_size_uints; j++) {
             exp_block[j] =
                 exp_block[j - 3] ^
@@ -72,18 +73,18 @@ uint* sha1(char* message, uint msize_bytes) {
             exp_block[j] = cycle_shift_left(exp_block[j], 1);
         }
 
-        // инициализация 
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
         uint a = H[0];
         uint b = H[1];
         uint c = H[2];
         uint d = H[3];
         uint e = H[4];
 
-        // пересчитываем
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         for (int j = 0; j < block_expend_size_uints; j++) {
             uint f;
             uint k;
-            // в зависимости от раунда считаем по-разному
+            // пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             if (j < 20) {
                 f = (b & c) | ((~b) & d);
                 k = 0x5A827999;
@@ -101,7 +102,7 @@ uint* sha1(char* message, uint msize_bytes) {
                 k = 0xCA62C1D6;
             }
 
-            // перемешивание
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             uint temp = cycle_shift_left(a, 5) + f + e + k + exp_block[j];
             e = d;
             d = c;
@@ -109,7 +110,7 @@ uint* sha1(char* message, uint msize_bytes) {
             b = a;
             a = temp;
         }
-        // пересчитываем
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         A = A + a;
         B = B + b;
         C = C + c;
@@ -117,7 +118,7 @@ uint* sha1(char* message, uint msize_bytes) {
         E = E + e;
     }
 
-    // A,B,C,D,E являются выходными 32б составляющими посчитанного хэша
+    // A,B,C,D,E пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 32пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
     uint* digest = new uint[5];
     digest[0] = A;
     digest[1] = B;
@@ -125,7 +126,7 @@ uint* sha1(char* message, uint msize_bytes) {
     digest[3] = D;
     digest[4] = E;
 
-    // чистим за собой
+    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     delete[] newMessage;
     return digest;
 }
